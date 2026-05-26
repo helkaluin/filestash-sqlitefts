@@ -6,7 +6,7 @@ ARG GIT_BRANCH=master
 RUN git clone --depth 1 --single-branch --branch ${GIT_BRANCH} ${GIT_REPO}
 
 # STEP2: BUILD BACKEND
-FROM golang:1.24-trixie AS builder_backend
+FROM golang:1.26-trixie AS builder_backend
 WORKDIR /home/filestash/
 COPY --from=builder_prepare /home/filestash/ .
 RUN apt-get update > /dev/null && \
@@ -24,8 +24,8 @@ MAINTAINER mickael@kerjean.me
 WORKDIR /app/
 COPY --from=builder_backend /home/filestash/dist/ .
 RUN apt-get update > /dev/null && \
-    apt-get install -y --no-install-recommends apt-utils && \
-    apt-get install -y curl ffmpeg libjpeg-dev libtiff-dev libpng-dev libwebp-dev libraw-dev libheif-dev libgif-dev && \
+    apt-get -y upgrade > /dev/null && \
+    apt-get install -y --no-install-recommends ca-certificates curl ffmpeg libbrotli1 && \
     useradd filestash && \
     chown -R filestash:filestash /app/ && \
     find /app/data/ -type d -exec chmod 770 {} \; && \
